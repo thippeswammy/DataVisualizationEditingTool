@@ -37,6 +37,7 @@ class PlotManager:
     def setup_widgets(self):
         # ... (rest of setup_widgets remains the same)
         # Define common button/slider dimensions and spacing
+        """Set up the UI widgets for the application."""
         btn_width = 0.08
         btn_height = 0.04
         btn_spacing_x = 0.09
@@ -128,6 +129,7 @@ class PlotManager:
 
     def on_motion(self, event):
         # Dummy motion handler, no actual point data lookup
+        """Handles motion events for the figure canvas."""
         if event.inaxes != self.ax:
             # Removed tooltip and nearest_point management here as they are not defined in this dummy.
             self.fig.canvas.draw_idle()
@@ -137,6 +139,18 @@ class PlotManager:
     def update_plot(self, data):
         # Clear only the plot elements that are part of the data visualization
         # Do NOT attempt to remove Axes objects associated with widgets (buttons, sliders)
+        """Update the plot with new data and clear previous elements.
+        
+        This function clears existing plot elements related to the data visualization,
+        including scatter plots and any dummy lines from drawing mode. It then checks
+        if new data is provided, and if so, it plots the unique lane data with
+        appropriate colors and labels. If no data is available, a message indicating
+        the absence of data is displayed. The axes labels and title are also set
+        accordingly.
+        
+        Args:
+            data: A numpy array containing the data to be visualized.
+        """
         for plot_element in self.lane_scatter_plots + self.start_point_plots + self.extra_scatter_plots:
             if plot_element in self.ax.collections: # Check if it's still on the axes
                 plot_element.remove()
@@ -178,6 +192,7 @@ class PlotManager:
 
     def update_status(self, message=""):
         # This will update the main plot title to show status messages
+        """Update the main plot title to show status messages."""
         self.ax.set_title(f'Lane Data Visualization (UI Preview): {message}' if message else 'Lane Data Visualization (UI Preview)')
         self.fig.canvas.draw_idle()
 
