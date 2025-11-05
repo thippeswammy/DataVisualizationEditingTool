@@ -5,6 +5,7 @@ class EventHandler:
         self.smoothing_active = False
 
     def set_plot_manager(self, plot_manager):
+        """Sets the plot manager and initializes event handlers."""
         self.plot_manager = plot_manager
         self.plot_manager.event_handler = self
         self.setup_event_handlers()
@@ -12,6 +13,7 @@ class EventHandler:
 
     def setup_event_handlers(self):
         # Basic click and key events for demonstration
+        """Sets up basic event handlers for click and key events."""
         self.plot_manager.fig.canvas.mpl_connect('button_press_event', self.on_click)
         self.plot_manager.fig.canvas.mpl_connect('key_press_event', self.on_key)
 
@@ -21,6 +23,14 @@ class EventHandler:
         self.plot_manager.update_status(f"Mode: {self.current_mode.capitalize()}")
 
     def on_button_click(self, button_key):
+        """Handle button click events and update the application state.
+        
+        This method processes the button click identified by `button_key` and  updates
+        the current mode of the application accordingly. It manages  different modes
+        such as 'selection', 'draw', and 'add_delete', and  handles smoothing actions.
+        Additionally, it toggles the visibility of  the grid and updates the user
+        interface state after any changes.
+        """
         print(f"Button '{button_key}' clicked (dummy action)")
         self.plot_manager.update_status(f"'{button_key}' clicked.")
 
@@ -53,7 +63,9 @@ class EventHandler:
         self.update_ui_state()  # Update UI after mode change
 
     def on_slider_change(self, slider_name):
+        """Handles changes to a slider and updates the plot accordingly."""
         def _handler(val):
+            """Handles the slider value change and updates the plot status."""
             print(f"Slider '{slider_name}' value changed to: {val:.2f} (dummy action)")
             self.plot_manager.update_status(f"{slider_name}: {val:.2f}")
             # For point size, we can actually update the dummy plot
@@ -63,6 +75,18 @@ class EventHandler:
         return _handler
 
     def on_click(self, event):
+        """Handle mouse click events on the plot.
+        
+        This method processes click events within the plot area, updating the status
+        and managing point selection for smoothing. It also supports a drawing mode
+        where points can be added or cleared based on the mouse button clicked. The
+        function interacts with the plot_manager to reflect changes visually and
+        provide feedback to the user.
+        
+        Args:
+            event: The mouse event containing information about the click, including coordinates
+                and button pressed.
+        """
         if event.inaxes != self.plot_manager.ax: return
         print(f"Plot clicked at ({event.xdata:.2f}, {event.ydata:.2f}) with button {event.button}")
         self.plot_manager.update_status(f"Plot clicked at ({event.xdata:.2f}, {event.ydata:.2f})")
@@ -94,6 +118,7 @@ class EventHandler:
             self.plot_manager.update_status("Drawing...")
 
     def on_key(self, event):
+        """Handles key press events and updates the plot status."""
         print(f"Key '{event.key}' pressed (dummy action)")
         self.plot_manager.update_status(f"Key '{event.key}' pressed.")
 
@@ -107,6 +132,7 @@ class EventHandler:
 
     # Dummy methods for functionalities not implemented in UI preview
     def update_point_sizes(self, val):
+        """Update the point sizes in the scatter plot."""
         print(f"Dummy: Update point sizes to {val}")
         # In the real app, this would iterate scatter plots and set sizes.
         # For this dummy, the plot is redrawn via slider_point_size.on_changed
