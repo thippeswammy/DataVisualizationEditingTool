@@ -8,6 +8,7 @@ from matplotlib.widgets import Slider, RectangleSelector
 class PlotManager:
     def __init__(self, data, file_names, D, data_manager, event_handler):
         self.data_manager = data_manager
+        self.graph_manager = data_manager.graph_manager
         self.file_names = file_names
         self.D = D
         self.event_handler = event_handler
@@ -197,6 +198,13 @@ class PlotManager:
             self.ax.grid(self.grid_visible)
             self.ax.legend()
             self.setup_legend_handler()
+
+            for node, neighbors in self.graph_manager.adjacency_list.items():
+                for neighbor in neighbors:
+                    start_pos = self.data_manager.data[node]
+                    end_pos = self.data_manager.data[neighbor]
+                    self.ax.plot([start_pos[0], end_pos[0]], [start_pos[1], end_pos[1]], 'r-', alpha=0.6)
+
             self.fig.canvas.draw_idle()
 
             print(f"Plot updated in {time.time() - start_time:.3f} seconds")
