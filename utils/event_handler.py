@@ -34,6 +34,8 @@ class EventHandler:
         self.remove_below_mode = False
         self.remove_point_idx = None
         self.remove_lane_id = None
+        self.connection_mode = False
+        self.first_connection_point = None
         self.buttons = {}
         self.status_timeout = 5  # seconds
         self.last_status_time = 0
@@ -429,6 +431,20 @@ class EventHandler:
         closest_idx = np.argmin(distances)
         lane_id = int(self.data_manager.data[closest_idx, -1])
 
+        if self.connection_mode:
+            if self.first_connection_point is None:
+                self.first_connection_point = closest_idx
+                self.update_status(f"First point selected ({closest_idx}). Select another point to connect.")
+            else:
+                second_point = closest_idx
+                if self.first_connection_point != second_point:
+                    self.data_manager.add_connection(self.first_connection_point, second_point)
+                    self.plot_manager.update_plot(self.data_manager.data)
+                    self.update_status(f"Connected point {self.first_connection_point} to {second_point}.")
+                else:
+                    self.update_status("Cannot connect a point to itself.")
+            return
+
         if self.remove_above_mode:
             self.remove_point_idx = closest_idx
             self.remove_lane_id = lane_id
@@ -614,6 +630,13 @@ class EventHandler:
             self.on_delete(event)
         elif key == 'enter':
             self.on_finalize_draw(event)
+        elif key == 'c':
+            self.connection_mode = not self.connection_mode
+            self.first_connection_point = None
+            if self.connection_mode:
+                self.update_status("Connection mode enabled. Select the first point.")
+            else:
+                self.update_status("Connection mode disabled.")
         elif key in '123456789':
             print("Lane ID selection disabled; use default ID 0 or Merge Lanes button")
             self.update_status("Lane ID selection disabled")
