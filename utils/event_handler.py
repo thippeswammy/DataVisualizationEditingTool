@@ -111,6 +111,10 @@ class EventHandler:
         self.buttons['remove_below'] = Button(ax_remove_below, 'Remove Below')
         self.buttons['remove_below'].on_clicked(self.on_remove_below)
 
+        ax_connect = plt.axes([0.01, 0.25, 0.1, 0.04])
+        self.buttons['connect'] = Button(ax_connect, 'Connect')
+        self.buttons['connect'].on_clicked(self.on_connect_mode)
+
         self.fig.canvas.draw()
 
     def update_button_states(self):
@@ -373,29 +377,13 @@ class EventHandler:
         self.update_status("Select first point (start or end)")
         self.update_point_sizes()
 
-    def finalize_merge(self):
-        if self.merge_point_1 is None or self.merge_point_2 is None or self.merge_lane_1 == self.merge_lane_2:
-            print("Two different lanes must be selected for merging")
-            self.update_status("Select two different lanes")
-            self.clear_merge_state()
-            return
-        self.merge_point_1, self.merge_point_2, self.merge_point_1_type, self.merge_point_2_type = self.data_manager.merge_lanes(
-            self.merge_lane_1, self.merge_lane_2,
-            self.merge_point_1, self.merge_point_2,
-            self.merge_point_1_type, self.merge_point_2_type
-        )
-        self.data_manager.save_all_lanes()
-        self.data_manager.clear_data()
-        temp_loader = DataLoader("workspace-Temp")
-        data, file_names = temp_loader.load_data()
-        self.data_manager.__init__(data, file_names)
-        self.plot_manager.selected_indices = []
-        self.plot_manager.file_names = file_names
-        self.plot_manager.update_plot(self.data_manager.data)
-        print(f"Merged lane {self.merge_lane_2} into lane {self.merge_lane_1}")
-        self.clear_merge_state()
-        self.update_point_sizes()
-        self.update_status(f"Merged lane {self.merge_lane_2} into lane {self.merge_lane_1}")
+    def on_connect_mode(self, event):
+        self.connection_mode = not self.connection_mode
+        self.first_connection_point = None
+        if self.connection_mode:
+            self.update_status("Connection mode enabled. Select the first point.")
+        else:
+            self.update_status("Connection mode disabled.")
 
     def save_data(self, event):
         filename = self.data_manager.save()
@@ -493,7 +481,9 @@ class EventHandler:
                 self.merge_lane_2 = lane_id
                 self.merge_point_2_type = point_type
                 print(f"Selected {point_type} point in lane {lane_id} (index {closest_idx})")
-                self.finalize_merge()
+                self.data_manager.add_connection(self.merge_point_1, self.merge_point_2)
+                self.plot_manager.update_plot(self.data_manager.data)
+                self.clear_merge_state()
             return
 
         if self.smoothing_point_selection:
@@ -630,13 +620,6 @@ class EventHandler:
             self.on_delete(event)
         elif key == 'enter':
             self.on_finalize_draw(event)
-        elif key == 'c':
-            self.connection_mode = not self.connection_mode
-            self.first_connection_point = None
-            if self.connection_mode:
-                self.update_status("Connection mode enabled. Select the first point.")
-            else:
-                self.update_status("Connection mode disabled.")
         elif key in '123456789':
             print("Lane ID selection disabled; use default ID 0 or Merge Lanes button")
             self.update_status("Lane ID selection disabled")

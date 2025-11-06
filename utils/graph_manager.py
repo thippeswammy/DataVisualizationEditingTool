@@ -1,4 +1,8 @@
 class GraphManager:
+    """
+    Manages the graph structure of the lanes.
+    Note: The connections are currently only visual and are not yet fully integrated with the data model.
+    """
     def __init__(self):
         self.adjacency_list = {}
 
