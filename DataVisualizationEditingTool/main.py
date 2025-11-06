@@ -2,7 +2,6 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-
 from DataVisualizationEditingTool.utils.data_loader import DataLoader
 from DataVisualizationEditingTool.utils.data_manager import DataManager
 from DataVisualizationEditingTool.utils.event_handler import EventHandler
@@ -14,14 +13,14 @@ def main():
     base_path = os.getcwd()  # Not sys._MEIPASS
 
     # Use that to find the 'lanes' folder
-    lanes_path = os.path.join(base_path, 'lanes')
+    lanes_path = os.path.join(base_path, 'lanes\\New_tests')
 
     if not os.path.isdir(lanes_path):
         raise ValueError(f"Directory does not exist: {lanes_path}")
 
     # Load data
     custom_order = ["lane-0.npy", "lane-3.npy", "lane-2.npy", "lane-1.npy"]
-    loader = DataLoader("lanes", file_order=custom_order)
+    loader = DataLoader("lanes\\New_tests", file_order=custom_order)
     merged_data, file_names = loader.load_data()
     D = loader.D
 
