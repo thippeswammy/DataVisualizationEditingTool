@@ -12,15 +12,28 @@ class EventHandler:
 
     def setup_event_handlers(self):
         # Basic click and key events for demonstration
+        """Sets up basic event handlers for click and key events."""
         self.plot_manager.fig.canvas.mpl_connect('button_press_event', self.on_click)
         self.plot_manager.fig.canvas.mpl_connect('key_press_event', self.on_key)
 
     def update_ui_state(self):
         # Call PlotManager's method to update button visibility and highlights
+        """Update the UI state based on the current mode and smoothing status."""
         self.plot_manager.update_button_states(self.current_mode, self.smoothing_active)
         self.plot_manager.update_status(f"Mode: {self.current_mode.capitalize()}")
 
     def on_button_click(self, button_key):
+        """Handle button click events and update the application state.
+        
+        This method processes the button click identified by `button_key` and  updates
+        the current mode of the application accordingly. It manages  different modes
+        such as 'selection', 'draw', and 'add_delete', and  handles smoothing
+        operations. Additionally, it updates the UI state  and the plot manager's
+        status based on the button clicked.
+        
+        Args:
+            button_key (str): The key identifying which button was clicked.
+        """
         print(f"Button '{button_key}' clicked (dummy action)")
         self.plot_manager.update_status(f"'{button_key}' clicked.")
 
@@ -54,6 +67,7 @@ class EventHandler:
 
     def on_slider_change(self, slider_name):
         def _handler(val):
+            """Handles the slider value change and updates the plot status."""
             print(f"Slider '{slider_name}' value changed to: {val:.2f} (dummy action)")
             self.plot_manager.update_status(f"{slider_name}: {val:.2f}")
             # For point size, we can actually update the dummy plot
@@ -63,6 +77,17 @@ class EventHandler:
         return _handler
 
     def on_click(self, event):
+        """Handle mouse click events on the plot.
+        
+        This method processes click events within the plot area, updating the status
+        and managing point selection for smoothing. It also supports a drawing mode,
+        allowing users to add or clear dummy points on the plot. The function checks
+        the active mode and the button pressed to determine the appropriate action,
+        ensuring a responsive user experience.
+        
+        Args:
+            event (MouseEvent): The mouse event containing information about the click.
+        """
         if event.inaxes != self.plot_manager.ax: return
         print(f"Plot clicked at ({event.xdata:.2f}, {event.ydata:.2f}) with button {event.button}")
         self.plot_manager.update_status(f"Plot clicked at ({event.xdata:.2f}, {event.ydata:.2f})")
@@ -94,11 +119,13 @@ class EventHandler:
             self.plot_manager.update_status("Drawing...")
 
     def on_key(self, event):
+        """Handles key press events and updates the plot status."""
         print(f"Key '{event.key}' pressed (dummy action)")
         self.plot_manager.update_status(f"Key '{event.key}' pressed.")
 
     def on_select(self, eclick, erelease):
         # This is for the RectangleSelector. Just print coordinates.
+        """Handles selection events and prints the coordinates of the selection box."""
         if self.current_mode == 'selection':
             x1, y1 = eclick.xdata, eclick.ydata
             x2, y2 = erelease.xdata, erelease.ydata
@@ -107,12 +134,14 @@ class EventHandler:
 
     # Dummy methods for functionalities not implemented in UI preview
     def update_point_sizes(self, val):
+        """Update the point sizes in the plot."""
         print(f"Dummy: Update point sizes to {val}")
         # In the real app, this would iterate scatter plots and set sizes.
         # For this dummy, the plot is redrawn via slider_point_size.on_changed
         # which calls on_slider_change which then calls update_plot.
 
     def update_smoothing_weight(self, val):
+        """Update the smoothing weight to the specified value."""
         print(f"Dummy: Update smoothing weight to {val}")
 
     def update_smoothness(self, val):
