@@ -42,7 +42,7 @@ class PlotManager:
         btn_spacing_x = 0.09
         btn_spacing_y = 0.01
 
-        # --- Top Global Toolbar Buttons ---
+        #  Top Global Toolbar Buttons 
         top_row_y = 0.95
         self.buttons['undo'] = Button(plt.axes([0.01, top_row_y, btn_width, btn_height]), 'Undo')
         self.buttons['redo'] = Button(plt.axes([0.01 + btn_spacing_x, top_row_y, btn_width, btn_height]), 'Redo')
@@ -50,7 +50,7 @@ class PlotManager:
         self.buttons['export'] = Button(plt.axes([0.01 + 3 * btn_spacing_x, top_row_y, btn_width, btn_height]), 'Export Selected')
         self.buttons['grid'] = Button(plt.axes([0.01 + 4 * btn_spacing_x, top_row_y, btn_width, btn_height]), 'Toggle Grid')
 
-        # --- Mode Selection Buttons ---
+        #  Mode Selection Buttons 
         mode_btn_y = 0.88
         mode_btn_width = 0.12
         mode_btn_spacing_x = 0.13
@@ -59,7 +59,7 @@ class PlotManager:
         self.buttons['draw_mode'] = Button(plt.axes([0.01 + mode_btn_spacing_x, mode_btn_y, mode_btn_width, btn_height]), 'Draw Mode')
         self.buttons['add_delete_mode'] = Button(plt.axes([0.01 + 2 * mode_btn_spacing_x, mode_btn_y, mode_btn_width, btn_height]), 'Add/Delete Mode')
 
-        # --- Right Sidebar Sliders (Global Settings) ---
+        #  Right Sidebar Sliders (Global Settings) 
         slider_left = 0.85
         slider_width = 0.12
         slider_height = 0.03
@@ -69,7 +69,7 @@ class PlotManager:
         self.slider_smoothness = Slider(plt.axes([slider_left, 0.10 + slider_spacing_y, slider_width, slider_height]), 'Smoothness', 0.1, 30.0, valinit=1.0)
         self.slider_base_weight = Slider(plt.axes([slider_left, 0.10 + 2 * slider_spacing_y, slider_width, slider_height]), 'Base Weight', 1, 100, valinit=20)
 
-        # --- Right Sidebar Buttons (Mode-Specific / Contextual) ---
+        #  Right Sidebar Buttons (Mode-Specific / Contextual) 
         sidebar_btn_y_start = 0.75 # Adjust based on how much space you want above sliders
         sidebar_btn_spacing_y = 0.05 # Spacing between these buttons
 
