@@ -23,6 +23,7 @@ class CurveManager:
             print(f"Error adding draw point: {e}")
 
     def update_draw_line(self):
+        """Update the drawn line based on the current draw points."""
         if self.current_line:
             self.current_line.remove()
             self.current_line = None
@@ -37,6 +38,17 @@ class CurveManager:
             print(f"Error updating draw line: {e}")
 
     def finalize_draw(self, original_lane_id):
+        """Finalize the drawing by adding nodes and edges based on drawn points.
+        
+        This method processes the points stored in self.draw_points to create  nodes
+        and edges in the data manager. If there are fewer than two points,  it clears
+        the current drawing. For each point, a new node is added, and  edges are
+        created between consecutive nodes. Finally, it updates the plot  with the new
+        nodes and edges, handling any exceptions that may occur  during the process.
+        
+        Args:
+            original_lane_id: The identifier for the original lane to which
+        """
         if len(self.draw_points) < 2:
             self.clear_draw()
             return
@@ -58,6 +70,7 @@ class CurveManager:
             self.plot_manager.update_plot(self.data_manager.nodes, self.data_manager.edges)
 
     def clear_draw(self):
+        """Clears the drawn points and resets the current line."""
         self.draw_points = []
         if self.current_line:
             try:
@@ -68,7 +81,7 @@ class CurveManager:
         self.plot_manager.fig.canvas.draw_idle()
 
     def _get_node_coords(self, point_id):
-        """Helper to get (x, y) for a point_id."""
+        """Retrieve the (x, y) coordinates for a given point_id."""
         node_mask = (self.data_manager.nodes[:, 0] == point_id)
         if np.any(node_mask):
             return self.data_manager.nodes[node_mask][0, 1:3]  # [x, y]
@@ -147,7 +160,15 @@ class CurveManager:
         self.event_handler.update_status("Preview generated. Adjust sliders or 'Confirm Smooth'.")
 
     def apply_smooth(self):
-        """Applies the smoothing to the data_manager.nodes array."""
+        """Applies smoothing to the data_manager.nodes array.
+        
+        This function retrieves the smoothing path IDs from the event_handler and
+        checks if any paths are available for smoothing.  If smoothing is applicable,
+        it computes the new smoothed points using the _smooth_segment method.  The
+        function then updates the nodes in the data_manager with the new coordinates
+        and yaw values,  saves the current state to history, and refreshes the plot to
+        reflect the changes.
+        """
         path_ids = self.event_handler.smoothing_path_ids
         if not path_ids:
             print("No path to apply smoothing to.")
@@ -191,6 +212,21 @@ class CurveManager:
         self.plot_manager.update_plot(self.data_manager.nodes, self.data_manager.edges)
 
     def straighten_segment(self, selected_indices, lane_id, start_idx, end_idx):
+        """Straightens a segment of points based on selected indices.
+        
+        This function smooths a segment defined by the provided `selected_indices`,
+        `lane_id`, `start_idx`, and `end_idx`. It first calls the `_smooth_segment`
+        method to obtain new points. If the new points are valid, it updates the
+        corresponding segment in the data manager, calculates the angles for each
+        point, and updates the lane ID. The function also manages the history and  plot
+        updates accordingly.
+        
+        Args:
+            selected_indices (list): Indices of the selected points to be straightened.
+            lane_id (int): Identifier for the lane associated with the segment.
+            start_idx (int): Starting index of the segment to be straightened.
+            end_idx (int): Ending index of the segment to be straightened.
+        """
         try:
             new_points = self._smooth_segment(selected_indices, lane_id, start_idx, end_idx, preview=False)
             if new_points is None:
@@ -230,7 +266,7 @@ class CurveManager:
             return []
 
     def _smooth_segment(self, path_ids, preview=False):
-        """Calculate smoothed points for a given path of IDs.
+        """Smooth the points of a given path defined by IDs.
         
         This function retrieves the (x, y) coordinates for the specified path IDs and
         identifies adjacent points that are not part of the path. It constructs a
