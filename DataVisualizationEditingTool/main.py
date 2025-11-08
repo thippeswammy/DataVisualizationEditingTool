@@ -1,54 +1,45 @@
 import os
-
-import matplotlib.pyplot as plt
+import glob
 import numpy as np
 
-# These imports assume your package structure
 from DataVisualizationEditingTool.utils.data_loader import DataLoader
 from DataVisualizationEditingTool.utils.data_manager import DataManager
-from DataVisualizationEditingTool.utils.event_handler import EventHandler
-from DataVisualizationEditingTool.utils.plot_manager import PlotManager
 
 
 def main():
-    # Get path where the user is running the .exe from
-    base_path = os.getcwd()  # Not sys._MEIPASS
-
-    # Use that to find the 'lanes' folder
-    lanes_path = os.path.join(base_path, 'lanes')
+    """
+    Loads lane data from the 'lanes' directory and returns it.
+    This function is now designed to be imported and used by other scripts.
+    """
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    lanes_path = os.path.join(script_dir, 'lanes')
 
     if not os.path.isdir(lanes_path):
-        raise ValueError(f"Directory does not exist: {lanes_path}")
+        return np.array([]), np.array([]), []
 
-    # Load data
-    custom_order = ["lane-0.npy", "lane-3.npy", "lane-2.npy", "lane-1.npy"]
-    loader = DataLoader(lanes_path, file_order=custom_order)
+    # Dynamically load all .npy files from the 'lanes' directory
+    file_paths = glob.glob(os.path.join(lanes_path, 'lane-*.npy'))
+    if not file_paths:
+        return np.array([]), np.array([]), []
 
-    # Unpack 3 values (nodes, edges, file_names) 
-    nodes, edges, file_names = loader.load_data()
-    D = loader.D
+    # Extract file names for the loader
+    file_names = [os.path.basename(p) for p in file_paths]
 
-    # Debug: Verify the data loaded
-    if nodes.size > 0:
-        print(f"Loaded {len(file_names)} files,  total nodes: {nodes.shape[0]}, total edges: {edges.shape[0]}")
-        # Column 4 is 'original_lane_id'
-        print(f"Unique lane IDs: {np.unique(nodes[:, 4])}")
-    else:
-        print("No data loaded")
-        return
+    loader = DataLoader(lanes_path, file_order=file_names)
+    nodes, edges, loaded_file_names = loader.load_data()
 
-    # Initialize managers with nodes and edges 
-    data_manager = DataManager(nodes, edges, file_names)
-    event_handler = EventHandler(data_manager)
+    if nodes.size == 0:
+        return np.array([]), np.array([]), []
 
-    # Pass nodes and edges instead of merged_data
-    plot_manager = PlotManager(nodes, edges, file_names, D, data_manager, event_handler)
-
-    event_handler.set_plot_manager(plot_manager)
-    event_handler.update_point_sizes()
-
-    plt.show()
+    return nodes, edges, loaded_file_names
 
 
 if __name__ == "__main__":
-    main()
+    nodes, edges, file_names = main()
+    if nodes.size > 0:
+        print(f"Loaded {len(file_names)} files.")
+        print(f"Total nodes: {nodes.shape[0]}")
+        print(f"Total edges: {edges.shape[0]}")
+        print(f"Unique lane IDs: {np.unique(nodes[:, 4])}")
+    else:
+        print("No data loaded.")
