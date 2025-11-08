@@ -6,7 +6,7 @@ from matplotlib.widgets import Button
 
 # Define the path to your graph file
 # Note: You might need to adjust this path depending on where you run the script.
-graph_file_path = r"F:\RunningProjects\AutoSegmentor\DataVisualizationEditingTool\files\output.pickle"
+graph_file_path = r"./../files/output.pickle"
 
 
 class GraphViewer:
