@@ -27,11 +27,22 @@ class DataManager:
         print(f"DataManager initialized with {len(self.nodes)} nodes and {len(self.edges)} edges.")
 
     def _get_new_point_id(self):
+        """Retrieve and increment the next point ID."""
         new_id = self._next_point_id
         self._next_point_id += 1
         return new_id
 
     def add_node(self, x, y, original_lane_id):
+        """Add a new node to the graph.
+        
+        Args:
+            x (float): The x-coordinate of the new node.
+            y (float): The y-coordinate of the new node.
+            original_lane_id (int): The ID of the original lane.
+        
+        Returns:
+            int or None: The ID of the new node or None if an error occurs.
+        """
         try:
             new_point_id = self._get_new_point_id()
             new_node = np.array([[new_point_id, x, y, 0.0, original_lane_id]])
@@ -52,6 +63,18 @@ class DataManager:
             return None
 
     def add_edge(self, from_point_id, to_point_id):
+        """Add an edge between two nodes in the graph.
+        
+        This method checks if an edge from `from_point_id` to `to_point_id` already
+        exists  in the graph. If not, it creates a new edge and updates the edges
+        array. It also  calculates the yaw angle between the two nodes and updates the
+        corresponding node's  yaw value. The method maintains a history of changes and
+        performs an auto-save  backup after adding the edge.
+        
+        Args:
+            from_point_id: The identifier for the starting node of the edge.
+            to_point_id: The identifier for the ending node of the edge.
+        """
         try:
             if np.any((self.edges[:, 0] == from_point_id) & (self.edges[:, 1] == to_point_id)):
                 print(f"Edge from {from_point_id} to {to_point_id} already exists.")
@@ -102,11 +125,11 @@ class DataManager:
     def reverse_path(self, path_ids):
         """Reverse the direction of all edges along a given path of node IDs.
         
-        This function takes a list of node IDs and reverses the edges between them.  It
-        first checks if the path contains at least two nodes, then identifies the
-        edges to be deleted and the corresponding edges to be added in reverse. A  mask
-        is created to filter out the edges that need to be deleted, and the new  edges
-        are added to the existing edges. Finally, it updates the yaws for the  new
+        This function processes a list of node IDs to reverse the edges between them.
+        It first checks if the path contains at least two nodes and identifies the
+        edges to be deleted and the corresponding edges to be added in reverse. A mask
+        is created to filter out the edges that need to be deleted, and the new edges
+        are added to the existing edges. Finally, it updates the yaws for the new
         "from" nodes and saves the current state to history for potential undo
         operations.
         
@@ -215,18 +238,29 @@ class DataManager:
             print(f"Error changing IDs: {e}")
 
     def remove_points_above(self, index, lane_id):
+        """Not implemented for graph model."""
         print("Function 'remove_points_above' is not implemented for graph model.")
         pass
 
     def remove_points_below(self, index, lane_id):
+        """Not implemented for graph model."""
         print("Function 'remove_points_below' is not implemented for graph model.")
         pass
 
     def merge_lanes(self, *args):
+        """Prints a deprecation message for the 'merge_lanes' function."""
         print("Function 'merge_lanes' is obsolete. Use 'add_edge(from_id, to_id)' instead.")
         pass
 
     def _create_networkx_graph(self):
+        """Create a directed graph using NetworkX.
+        
+        This function initializes a directed graph (DiGraph) and populates it  with
+        nodes and edges based on the data stored in `self.nodes` and  `self.edges`.
+        Each node is added with specific attributes such as  coordinates and lane ID,
+        while edges are created between the specified  node pairs. The function returns
+        the constructed graph.
+        """
         G = nx.DiGraph()
         if self.nodes.size > 0:
             for node_data in self.nodes:
@@ -244,6 +278,14 @@ class DataManager:
         return G
 
     def save_all_lanes(self):
+        """Save all lanes and related graph data to a temporary workspace.
+        
+        This function creates a temporary directory named 'workspace-Temp'  and clears
+        any existing files or directories within it. It then saves  the graph nodes and
+        edges as NumPy files, and serializes the NetworkX  graph to a pickle file. The
+        function handles exceptions during file  operations and prints error messages
+        if any issues arise.
+        """
         folder = "workspace-Temp"
         try:
             os.makedirs(folder, exist_ok=True)
@@ -274,6 +316,7 @@ class DataManager:
             print(f"Error saving graph data to temp: {e}")
 
     def clear_data(self):
+        """Clears all nodes, edges, and related data."""
         try:
             self.nodes = np.array([])
             self.edges = np.array([])
@@ -287,6 +330,7 @@ class DataManager:
             print(f"Error clearing data: {e}")
 
     def undo(self):
+        """Reverts the last action in the history."""
         try:
             if len(self.history) <= 1:
                 print("Nothing to undo")
@@ -307,6 +351,7 @@ class DataManager:
             return self.nodes, self.edges, False
 
     def redo(self):
+        """Performs a redo operation on the stored nodes and edges."""
         try:
             if not self.redo_stack:
                 print("Nothing to redo")
@@ -354,6 +399,8 @@ class DataManager:
             return None
 
     def _auto_save_backup(self):
+        """Automatically saves a backup of nodes and edges if the backup interval has
+        passed."""
         try:
             if time.time() - self.last_backup < self.backup_interval:
                 return
@@ -373,6 +420,11 @@ class DataManager:
             print(f"Backup failed: {e}")
 
     def delete_edges_for_node(self, point_id):
+        """Delete edges associated with a specified node.
+        
+        Args:
+            point_id: The ID of the node for which edges will be deleted.
+        """
         if self.edges.size == 0:
             return
 
