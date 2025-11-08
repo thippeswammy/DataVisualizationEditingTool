@@ -37,6 +37,7 @@ class PlotManager:
     def setup_widgets(self):
         # ... (rest of setup_widgets remains the same)
         # Define common button/slider dimensions and spacing
+        """Set up the UI widgets for the application."""
         btn_width = 0.08
         btn_height = 0.04
         btn_spacing_x = 0.09
