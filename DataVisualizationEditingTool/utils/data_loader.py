@@ -19,11 +19,10 @@ class DataLoader:
         """Load and process .npy files from the specified directory.
         
         This function retrieves all .npy files from the directory specified by
-        `self.directory`.  It processes each file to extract points, constructs nodes
-        and edges, and handles various  data integrity checks, such as ensuring the
-        presence of at least two columns in the data.  The function also maintains a
-        unique point ID for each node and calculates the maximum  distance between
-        points if valid data is loaded.
+        `self.directory`, processes each file to extract points, and constructs nodes
+        and edges. It performs data integrity checks, ensuring that each file has at
+        least two columns. The function maintains a unique point ID for each node and
+        calculates the maximum distance between points if valid data is loaded.
         
         Args:
             self: The instance of the class containing the directory and file order attributes.
