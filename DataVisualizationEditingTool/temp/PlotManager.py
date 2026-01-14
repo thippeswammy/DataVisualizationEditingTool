@@ -103,12 +103,14 @@ class PlotManager:
 
     def setup_navigation(self):
         # Connect basic navigation events (scroll, motion)
+        """Connect basic navigation events to the figure canvas."""
         self.fig.canvas.mpl_connect('scroll_event', self.on_scroll)
         self.fig.canvas.mpl_connect('motion_notify_event', self.on_motion)
         # self.fig.canvas.mpl_connect('pick_event', self.on_legend_pick) # Legend pick requires data.
         self.ax.set_navigate(True)
 
     def on_scroll(self, event):
+        """Adjusts the x and y limits of the axes based on scroll events."""
         if event.inaxes != self.ax: return
         base_scale = 1.1
         cur_xlim = self.ax.get_xlim()
@@ -128,6 +130,7 @@ class PlotManager:
 
     def on_motion(self, event):
         # Dummy motion handler, no actual point data lookup
+        """Handles motion events for the figure canvas."""
         if event.inaxes != self.ax:
             # Removed tooltip and nearest_point management here as they are not defined in this dummy.
             self.fig.canvas.draw_idle()
@@ -137,6 +140,18 @@ class PlotManager:
     def update_plot(self, data):
         # Clear only the plot elements that are part of the data visualization
         # Do NOT attempt to remove Axes objects associated with widgets (buttons, sliders)
+        """Update the plot with new data and clear previous elements.
+        
+        This function clears existing plot elements related to the data visualization,
+        including scatter plots and any dummy lines from drawing mode. It then checks
+        if new data is provided, and if so, it plots the unique lane data with
+        appropriate colors and labels. If no data is available, a message indicating
+        the absence of data is displayed. The axes labels and title are also set
+        accordingly, and the plot is refreshed.
+        
+        Args:
+            data: A numpy array containing the data to be visualized.
+        """
         for plot_element in self.lane_scatter_plots + self.start_point_plots + self.extra_scatter_plots:
             if plot_element in self.ax.collections: # Check if it's still on the axes
                 plot_element.remove()
@@ -184,6 +199,21 @@ class PlotManager:
     def update_button_states(self, current_mode, smoothing_active=False):
         # ... (This method remains the same as in the previous response's `dummy_plot_manager.py`)
         # Helper to set button visibility based on current mode
+        """Update the visibility and state of buttons based on the current mode.
+        
+        This method manages the visibility and interactivity of various buttons  in the
+        user interface according to the specified `current_mode`. It ensures  that
+        global toolbar buttons are always visible, highlights the active mode  button,
+        and adjusts the visibility of contextual buttons based on the  current mode and
+        whether smoothing is active. The function also updates  slider visibility and
+        triggers a redraw of the figure canvas.
+        
+        Args:
+            current_mode (str): The current mode of the application, which can be
+                'selection', 'draw', or 'add_delete'.
+            smoothing_active (bool?): Indicates if the smoothing process
+                is currently active. Defaults to False.
+        """
         for key, btn in self.buttons.items():
             btn.ax.set_visible(False)
             btn.eventson = False
